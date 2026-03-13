@@ -1,68 +1,70 @@
-const header = document.getElementById("header");
-const menuBtn = document.getElementById("menuBtn");
-const mobileMenu = document.getElementById("mobileMenu");
-const mobileLinks = mobileMenu ? mobileMenu.querySelectorAll("a") : [];
+document.addEventListener("DOMContentLoaded", () => {
+  const loader = document.getElementById("loader");
+  const pageContent = document.getElementById("pageContent");
+  const header = document.getElementById("header");
+  const menuBtn = document.getElementById("menuBtn");
+  const mobileMenu = document.getElementById("mobileMenu");
+  const revealElements = document.querySelectorAll(".reveal");
+  const mobileLinks = mobileMenu.querySelectorAll("a");
 
-/* =========================
-   MENU MOBILE
-========================= */
-if (menuBtn && mobileMenu) {
+  // =========================
+  // LOADER INICIAL
+  // =========================
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      loader.classList.add("hidden-loader");
+      pageContent.style.opacity = "1";
+      document.body.style.overflowY = "auto";
+    }, 1800);
+  });
+
+  // Mientras carga, bloquea scroll
+  document.body.style.overflowY = "hidden";
+
+  // =========================
+  // HEADER SCROLL
+  // =========================
+  const handleHeaderScroll = () => {
+    if (window.scrollY > 30) {
+      header.classList.add("header-scrolled");
+    } else {
+      header.classList.remove("header-scrolled");
+    }
+  };
+
+  window.addEventListener("scroll", handleHeaderScroll);
+  handleHeaderScroll();
+
+  // =========================
+  // MENU MOBILE
+  // =========================
   menuBtn.addEventListener("click", () => {
     mobileMenu.classList.toggle("hidden");
-
-    const isOpen = !mobileMenu.classList.contains("hidden");
-
-    if (isOpen) {
-      header.classList.add("bg-black", "border-b", "border-white/10");
-      document.body.classList.add("overflow-hidden");
-    } else {
-      document.body.classList.remove("overflow-hidden");
-      updateHeaderOnScroll();
-    }
   });
-}
 
-/* =========================
-   CERRAR MENU AL TOCAR LINKS
-========================= */
-if (mobileLinks.length > 0) {
   mobileLinks.forEach((link) => {
     link.addEventListener("click", () => {
       mobileMenu.classList.add("hidden");
-      document.body.classList.remove("overflow-hidden");
-      updateHeaderOnScroll();
     });
   });
-}
 
-/* =========================
-   HEADER DINAMICO EN SCROLL
-========================= */
-function updateHeaderOnScroll() {
-  if (!header) return;
+  // =========================
+  // REVEAL ON SCROLL
+  // =========================
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("show");
+        }
+      });
+    },
+    {
+      threshold: 0.15,
+    }
+  );
 
-  const scrolled = window.scrollY > 30;
-  const menuOpen = mobileMenu && !mobileMenu.classList.contains("hidden");
-
-  if (scrolled || menuOpen) {
-    header.classList.add("bg-black/90", "backdrop-blur-md", "border-b", "border-white/10");
-    header.classList.remove("bg-transparent");
-  } else {
-    header.classList.remove("bg-black/90", "backdrop-blur-md", "border-b", "border-white/10");
-    header.classList.add("bg-transparent");
-  }
-}
-
-window.addEventListener("scroll", updateHeaderOnScroll);
-window.addEventListener("load", updateHeaderOnScroll);
-
-/* =========================
-   CERRAR MENU SI PASA A DESKTOP
-========================= */
-window.addEventListener("resize", () => {
-  if (window.innerWidth >= 768 && mobileMenu) {
-    mobileMenu.classList.add("hidden");
-    document.body.classList.remove("overflow-hidden");
-    updateHeaderOnScroll();
-  }
+  revealElements.forEach((element) => {
+    observer.observe(element);
+  });
 });
